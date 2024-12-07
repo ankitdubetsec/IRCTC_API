@@ -40,8 +40,76 @@ Run the application using the following command:
 npm start
 ```
 
-The server will start on port 3000 (or the port specified in the `.env` file).
+The server will start on port 5500 (or the port can be specified in the `.env` file).
 
+
+## Tech Stack
+
+- **Backend**: Node.js with Express.js
+- **Database**: MySQL
+- **Authentication**: JWT (JSON Web Tokens)
+- **Environment Management**: dotenv
+
+---
+
+## Prerequisites
+
+1. Node.js installed on your system.
+2. MySQL server running locally or remotely.
+3. A `.env` file configured with the following details.
+
+---
+
+
+## Database Setup
+
+To get started, create the database and required tables by running the following SQL commands in your MySQL client:
+
+```sql
+-- Create the database
+CREATE DATABASE irctc;
+
+-- Use the database
+USE irctc;
+
+-- Create the users table
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('user', 'admin') DEFAULT 'user'
+);
+
+-- Create the train table
+CREATE TABLE train (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    train_no INT NOT NULL,
+    train_name VARCHAR(200) NOT NULL,
+    source VARCHAR(200) NOT NULL,
+    destination VARCHAR(200) NOT NULL,
+    max_seats INT NOT NULL,
+    available_seats INT NOT NULL
+);
+
+-- Create the bookings table
+CREATE TABLE bookings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    userId INT NOT NULL,
+    trainId INT NOT NULL,
+    numberOfSeats INT NOT NULL,
+    bookingTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(id),
+    FOREIGN KEY (trainId) REFERENCES train(id)
+);
+
+-- Verify tables
+SELECT * FROM users;
+SELECT * FROM train;
+SELECT * FROM bookings;
+```
+
+---
 ### API Endpoints
 
 please refer this documentation
