@@ -42,7 +42,7 @@ npm start
 
 The server will start on port 3000 (or the port specified in the `.env` file).
 
-API Endpoints
+### API Endpoints
 
 please refer this documentation
 
@@ -52,7 +52,8 @@ https://documenter.getpostman.com/view/30230934/2sAYBbf9a8
 - Admin operations like adding a train require an API Key to ensure only authorized users can perform such actions.
 - This project handles race conditions during seat booking using a transactional approach.
 
-Future Scope
+### Future Scope
+
 In the future, I plan to enhance the IRCTC API by adding the ability to(due to time constraints i could not implement this but will update this repo in future):
 
 Book Seats Across Multiple Stations:
