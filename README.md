@@ -24,12 +24,11 @@ npm install
 Create a `.env` file in the root directory of the project and add your MySQL database credentials:
 
 ```
-MYSQL_HOST=your_database_host
-MYSQL_USER=your_database_user
-MYSQL_PASSWORD=your_database_password
-MYSQL_DATABASE=your_database_name
-PORT=3000
-JWT_SECRET=your_secret_key
+MYSQL_HOST='your-database-host'
+MYSQL_USER='your-database-username'
+MYSQL_PASSWORD='your-database-password'
+MYSQL_DATABASE='your-database-name'
+JWT_SECRET='your-jwt-secret'
 ADMIN_API_KEY=931128b6f9c795dede3c51002c53bf947b50f95a6f7239e556e5c1091c05fce2
 ```
 
