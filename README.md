@@ -1,5 +1,20 @@
 # IRCTC_API
 
+## Tech Stack
+
+- **Backend**: Node.js with Express.js
+- **Database**: MySQL
+- **Authentication**: JWT (JSON Web Tokens)
+- **Environment Management**: dotenv
+
+---
+
+## Prerequisites
+
+1. Node.js installed on your system.
+2. MySQL server running locally or remotely.
+3. A `.env` file configured with the following details.
+
 ## Setup Instructions
 
 ### 1. Clone the Repository
@@ -43,20 +58,6 @@ npm start
 The server will start on port 5500 (or the port can be specified in the `.env` file).
 
 
-## Tech Stack
-
-- **Backend**: Node.js with Express.js
-- **Database**: MySQL
-- **Authentication**: JWT (JSON Web Tokens)
-- **Environment Management**: dotenv
-
----
-
-## Prerequisites
-
-1. Node.js installed on your system.
-2. MySQL server running locally or remotely.
-3. A `.env` file configured with the following details.
 
 ---
 
