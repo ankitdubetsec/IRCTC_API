@@ -5,9 +5,10 @@
 ### 1. Clone the Repository
 
 To get started, clone the repository to your local machine:
-
+```bash
 git clone https://github.com/ankitdubetsec/IRCTC_API.git
 cd IRCTC_API
+```
 
 
 ### 2. Install Dependencies
