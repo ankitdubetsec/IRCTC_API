@@ -3,6 +3,9 @@ const app = express();
 const dotenv = require("dotenv");
 dotenv.config();
 const cors = require("cors");
+const rateLimiter = require("express-rate-limit");
+const helmet = require("helmet");
+const xss = require("xss-clean");
 const { getUsers } = require("./database.js");
 const {
   getAvailability,
@@ -11,6 +14,8 @@ const {
 } = require("./controllers/Trains.js");
 const allowedOrigins = ["http://localhost:3000"];
 
+app.use(express.json());
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something broke!");
@@ -18,13 +23,7 @@ app.use((err, req, res, next) => {
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("not allowed by CORS"));
-      }
-    },
+    origin: "*",
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
@@ -37,6 +36,16 @@ app.use((err, req, res, next) => {
     error: err.stack,
   });
 });
+//security pactices
+app.use(
+  rateLimiter({
+    window: 2 * 60 * 1000,
+    max: 10,
+    message: "too many requests,try again after some time",
+  })
+);
+app.use(helmet());
+app.use(xss());
 
 // app.get("/", async (req, res) => {
 //   try {
@@ -49,6 +58,17 @@ app.use((err, req, res, next) => {
 //   }
 // });
 
+// app.post("/", (req, res) => {
+//   const { malscript } = req.body;
+//   res.send(`
+//     <html>
+//       <body>
+//         <div>${malscript}</div>
+//       </body>
+//     </html>
+//   `);
+// });
+
 //middlewares
 const Authentication = require("./middleware/authentication");
 
@@ -56,8 +76,6 @@ const Authentication = require("./middleware/authentication");
 const authRouters = require("./routes/auth");
 const trainRouters = require("./routes/train.js");
 const bookingrouters = require("./routes/booking.js");
-
-app.use(express.json());
 
 app.use("/api/v1/auth", authRouters);
 app.use("/api/v1/trains", Authentication, trainRouters);

@@ -141,7 +141,7 @@ const booking_details = async (bookingId) => {
 //   .then((res) => console.log(res))
 //   .catch((err) => console.log(err));
 
-// bookSeat(2, 4, 2)
+// bookSeat(2, 3, 40)
 //   .then(() => {
 //     console.log("Booking complete!");
 //   })
