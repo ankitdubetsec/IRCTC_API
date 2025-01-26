@@ -6,7 +6,10 @@ const cors = require("cors");
 const rateLimiter = require("express-rate-limit");
 const helmet = require("helmet");
 const xss = require("xss-clean");
+require("express-async-errors");
+
 const { getUsers } = require("./database.js");
+const errorHandler = require("./middleware/errorHandler");
 const {
   getAvailability,
   addTrain,
@@ -16,10 +19,10 @@ const allowedOrigins = ["http://localhost:3000"];
 
 app.use(express.json());
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
-});
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   res.status(500).send("Something broke!");
+// });
 
 app.use(
   cors({
@@ -28,14 +31,14 @@ app.use(
   })
 );
 
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  const statusCode = err.statusCode || 500;
-  res.status(statusCode).json({
-    message: err.message || "Something went wrong",
-    error: err.stack,
-  });
-});
+// app.use((err, req, res, next) => {
+//   console.error(err.stack);
+//   const statusCode = err.statusCode || 500;
+//   res.status(statusCode).json({
+//     message: err.message || "Something went wrong",
+//     error: err.stack,
+//   });
+// });
 //security pactices
 app.use(
   rateLimiter({
@@ -76,10 +79,14 @@ const Authentication = require("./middleware/authentication");
 const authRouters = require("./routes/auth");
 const trainRouters = require("./routes/train.js");
 const bookingrouters = require("./routes/booking.js");
+const intermediaterouters = require("./routes/route.js");
 
 app.use("/api/v1/auth", authRouters);
 app.use("/api/v1/trains", Authentication, trainRouters);
 app.use("/api/v1/booking", Authentication, bookingrouters);
+app.use("/api/v1/availabiltyByRoute", Authentication, intermediaterouters);
+
+app.use(errorHandler);
 
 const start = async () => {
   try {

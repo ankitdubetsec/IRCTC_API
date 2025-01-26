@@ -141,7 +141,130 @@ const booking_details = async (bookingId) => {
 //   .then((res) => console.log(res))
 //   .catch((err) => console.log(err));
 
-// bookSeat(2, 3, 40)
+const availabilityForIntermediateStations = async (
+  departure,
+  arrival,
+  train_name
+) => {
+  const [depStationId] = await pool.query(
+    `select id from stations where station_name=?`,
+    [departure]
+  );
+
+  const [arrStationId] = await pool.query(
+    `select id from stations where station_name=?`,
+    [arrival]
+  );
+
+  const [train_id] = await pool.query(
+    `select id from train where train_name=?`,
+    [train_name]
+  );
+  const [response] = await pool.query(
+    `SELECT MIN(available_seats) AS available_seats
+FROM route
+WHERE train_id =?
+  AND station_order >= (
+      SELECT station_order FROM route WHERE station_id = ? AND train_id = ?
+  )
+  AND station_order < (
+      SELECT station_order FROM route WHERE station_id = ? AND train_id = ?
+  )`,
+    [
+      train_id[0].id,
+      depStationId[0].id,
+      train_id[0].id,
+      arrStationId[0].id,
+      train_id[0].id,
+    ]
+  );
+
+  return [response];
+};
+
+const bookSeatFromIntermediateStation = async (
+  userId,
+  numberOfSeats,
+  departure,
+  arrival,
+  train_name
+) => {
+  const [depStationId] = await pool.query(
+    `select id from stations where station_name=?`,
+    [departure]
+  );
+
+  const [arrStationId] = await pool.query(
+    `select id from stations where station_name=?`,
+    [arrival]
+  );
+
+  const [trainId] = await pool.query(
+    `select id from train where train_name=?`,
+    [train_name]
+  );
+  console.log(trainId);
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    // Lock the train row
+    const [train] = await availabilityForIntermediateStations(
+      departure,
+      arrival,
+      train_name
+    );
+
+    if (train.length === 0) {
+      throw new Error("Train not found");
+    }
+
+    if (train[0].available_seats < numberOfSeats) {
+      throw new Error("Not enough available seats");
+    }
+
+    // Update the available seats
+    await connection.query(
+      `UPDATE route
+SET available_seats = available_seats - ?
+WHERE train_id = ?
+  AND station_order >= (
+      SELECT MIN(station_order) FROM (SELECT station_order FROM route WHERE station_id = ? AND train_id = ?) AS temp
+  )
+  AND station_order < (
+      SELECT MIN(station_order) FROM (SELECT station_order FROM route WHERE station_id = ? AND train_id = ?) AS temp
+  )`,
+      [
+        numberOfSeats,
+        trainId[0].id,
+        depStationId[0].id,
+        trainId[0].id,
+        arrStationId[0].id,
+        trainId[0].id,
+      ]
+    );
+
+    // Create a booking record
+    const [result] = await connection.query(
+      "insert into bookings (userId, trainId, numberOfSeats) values (?, ?, ?)",
+      [userId, trainId[0].id, numberOfSeats]
+    );
+
+    await connection.commit();
+
+    console.log("Seat booking successful!");
+    return result.insertId;
+  } catch (error) {
+    await connection.rollback();
+    console.error("Booking failed:", error.message);
+    throw error;
+  } finally {
+    connection.release();
+  }
+};
+
+// bookSeatFromIntermediateStation(2, 69, "Surat", "New Delhi", "Tejas Express")
 //   .then(() => {
 //     console.log("Booking complete!");
 //   })
@@ -159,4 +282,6 @@ module.exports = {
   bookSeat,
   pool,
   booking_details,
+  availabilityForIntermediateStations,
+  bookSeatFromIntermediateStation,
 };
